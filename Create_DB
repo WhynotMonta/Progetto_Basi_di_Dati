@@ -1,0 +1,6 @@
+CREATE DATABASE "Squadra_Basket"
+    WITH
+    OWNER = postgres
+    TEMPLATE = postgres
+    ENCODING = 'UTF8'
+    CONNECTION LIMIT = -1;

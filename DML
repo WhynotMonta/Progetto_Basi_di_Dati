@@ -1,0 +1,37 @@
+-- Aumento di stipendio per la persona con il cf seguente nel 2021
+
+UPDATE Contratto
+SET stipendio = stipendio + 10000
+WHERE CF_P='asoLihn79I' and anno_firma=2021;
+
+-- Cambio di status per il giocatore con la maglia numero 23
+
+UPDATE Giocatore
+SET status = 'Starter'
+where N_Maglia=23;
+
+-- Aumento di punti del giocatore con CF=’fWqaexj9a9’ nella partita con cod_Partita=’VZFgW’
+
+UPDATE Statistiche
+SET Punti = Punti+5
+WHERE Cod_P='VZFgW' and CF_G='fWqaexj9a9';
+
+-- Acquisto del merchandising del giocatore con cf ‘bMSzjEuUWr’ di 50 qta, utilizzando funzione acquisto
+
+select Acquisto('bMSzjEuUWr',50);
+
+
+
+
+
+-- Eliminazione del giocatore che ha il numero 19
+
+Delete FROM Giocatore WHERE N_Maglia = 19;
+
+-- Eliminazione della partita giocata il 21/01/2022 al ‘Madison Square Garden’
+
+Delete FROM Partita WHERE Data ='2022/01/21' AND Nome_Stadio = 'Madison Square Garden';
+
+-- Eliminazione di tutti i contratti che non superano i 750000 di stipendio
+
+Delete FROM Contratto WHERE Stipendio<750000;

@@ -1,0 +1,94 @@
+-- Q1. Visualizzare i giocatori che sono alti più di un 205cm con ruolo “ala piccola”
+
+    SELECT P.COGNOME,P.NOME,G.*
+    FROM GIOCATORE G, PERSONA P
+    WHERE ALTEZZA>2.05 AND RUOLO='Ala Piccola' AND P.CF=G.CF;
+  
+-- Q2. Visualizzare gli stadi in cui si è giocato una partita con almeno 12000 spettatori, vinta, e ordinarli per capienza
+  
+    SELECT DISTINCT S.NOME,S.N_POSTI
+    FROM STADIO S, PARTITA P
+    WHERE S.NOME=P.NOME_STADIO AND P.BIGLIETTI_VENDUTI>=12000 AND P.ESITO='W'
+    ORDER BY 2 DESC;
+  
+-- Q3. Visualizzare il budget disponibile di ogni stagione
+  
+    SELECT STAGIONE,DISPONIBILE
+    FROM BUDGET
+    ORDER BY STAGIONE;
+
+-- Q4. Visualizzare il nome del giocatore, il numero di maglia e le sue statistiche medie
+
+    SELECT P.COGNOME,P.NOME,G.N_MAGLIA, AVG(S.PUNTI) AS PPP, AVG(S.ASSIST) AS APP, AVG(S.RIMBALZI) AS RPP, AVG(S.MINUTI) AS MPP
+    FROM GIOCATORE G, PERSONA P, STATISTICHE S
+    WHERE P.CF=G.CF AND S.CF_G=G.CF
+    GROUP BY P.COGNOME,P.NOME,G.N_MAGLIA;
+  
+-- Q5. Visualizzare il nome del giocatore che ha giocato più partite nella squadra
+
+    SELECT P.COGNOME,P.NOME,G.N_MAGLIA
+    FROM GIOCATORE G, PERSONA P, STATISTICHE S
+    WHERE P.CF=G.CF AND S.CF_G=G.CF
+    GROUP BY P.COGNOME,P.NOME,G.N_MAGLIA
+    HAVING COUNT(*) >= ALL
+    (
+      SELECT COUNT(*)
+      FROM STATISTICHE
+      GROUP BY CF_G
+     );
+    
+-- Q6. Visualizzare per ogni preparatore, il numero di sotto-preparatori e gli allenamenti svolti 
+    
+    SELECT P.TESSERA, (SELECT COUNT(*) FROM PREPARATORE P1 WHERE P1.TESSERA_CAPO=P.TESSERA) AS SOTTOPREP, A.TIPO,A.DATA
+    FROM PREPARATORE P, ALLENAMENTO A
+    WHERE P.TESSERA=A.TESSERA
+    GROUP BY P.TESSERA,A.TIPO,A.DATA
+    ORDER BY P.TESSERA;
+
+    
+-- Q7. Visualizzare gli infortuni e ordinarli per gravità
+
+    SELECT *
+    FROM INFORTUNIO
+    ORDER BY GRAVITA;
+    
+-- Q8. Visualizzare il numero dei giocatori con status “Bencher” e il totale dei loro stipendi in tutte le stagioni
+
+    SELECT COUNT(DISTINCT G.CF), SUM(C.STIPENDIO)
+    FROM GIOCATORE G, CONTRATTO C
+    WHERE STATUS='Bencher' AND G.CF=C.CF_P;
+    
+-- Q9. Visualizzare i giocatori che non hanno mai realizzato una doppia doppia (doppia cifra in 2 statistiche)
+
+    SELECT P.CF,P.NOME,P.COGNOME,G.N_MAGLIA
+    FROM GIOCATORE G, PERSONA P
+    WHERE G.CF=P.CF AND G.CF NOT IN(
+    SELECT CF_G
+    FROM STATISTICHE 
+    WHERE (PUNTI>9 AND ASSIST>9) OR (PUNTI>9 AND RIMBALZI>9) OR (RIMBALZI>9 AND ASSIST>9))  ;
+    
+-- Q10. Visualizzare i giocatori ceduti e raggruparli per ruolo
+    
+    SELECT P.*,G.RUOLO
+    FROM PERSONA P, GIOCATORE G, TRASFERIMENTO T
+    WHERE T.TIPOLOGIA='Cessione' AND P.CF=G.CF AND T.CF_G=G.CF
+    GROUP BY G.RUOLO,P.CF ;
+
+-- Q11. Visualizzare i campionati vinti con i rispettivi allenatori
+
+    SELECT P.NOME,P.COGNOME, CV.ANNO, CV.NOME_CAMP
+    FROM ALLENATORE A, PERSONA P, CONTRATTO C, CAMPIONATI_VINTI CV
+    WHERE A.CF=P.CF AND P.CF=C.CF_P AND CV.ANNO BETWEEN C.ANNO_FIRMA AND C.ANNO_FIRMA+DURATA;
+    
+-- Q12. Visualizzare i giocatori che hanno giocato almeno 10 minuti in tutte le partite del 2021
+    
+    SELECT *
+    FROM GIOCATORE G
+    WHERE NOT EXISTS(
+    SELECT *
+    FROM PARTITA P
+    WHERE DATA BETWEEN '2021/01/01' and '2021/12/31' AND NOT EXISTS(
+    SELECT *
+    FROM STATISTICHE S
+    WHERE S.MINUTI>=10 AND P.COD=S.COD_P AND S.CF_G = G.CF ));
+
